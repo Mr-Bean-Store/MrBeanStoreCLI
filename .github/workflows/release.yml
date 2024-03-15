@@ -23,7 +23,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: java-project
-        path: target/*.jar
+        path: target
 
   release:
     needs: build
@@ -55,6 +55,10 @@ jobs:
         release_name: Release ${{ steps.create_tag.outputs.new_tag }}
         draft: false
         prerelease: false
+
+    - name: Generate Binary
+      run: jpackage --input target --main-jar mr-bean-0.0.1-SNAPSHOT.jar --type deb --dest .
+      run: pwd && ls -al
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
