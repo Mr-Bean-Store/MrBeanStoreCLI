@@ -16,14 +16,29 @@ jobs:
         distribution: 'adopt'
         java-version: '21'
 
+    - name: Download JRE
+      run: |
+        curl -LJ -o jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.2%2B13/OpenJDK21U-jre_x64_linux_hotspot_21.0.2_13.tar.gz
+
     - name: Build Project
-      run: chmod +x ./mvnw && ./mvnw -B package --file pom.xml
+      run: |
+        chmod +x ./mvnw &&
+        ./mvnw -B package --file pom.xml
+
+    - name: Package Application
+      run: |
+        mkdir mbs &&
+        cp target/*.jar mbs/mbs.jar &&
+        tar -xzvf jre.tar.gz &&
+        rm -rf jre.tar.gz &&
+        cp -r *jre* mbs/jre &&
+        tar -czvf mbs.tar.gz mbs
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: java-project
-        path: target
+        path: mbs.tar.gz
 
   release:
     needs: build
@@ -56,17 +71,12 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Generate Binary
-      run: |
-        jpackage --input target --main-jar mr-bean-0.0.1-SNAPSHOT.jar --type deb --dest . &&
-        pwd && ls -al
-
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./mr-bean-0.0.1-SNAPSHOT.jar
-        asset_name: mr-bean-${{ steps.create_tag.outputs.new_tag }}-.jar
+        asset_path: ./mbs.tar.gz
+        asset_name: mbs.tar.gz
         asset_content_type: application/jar
