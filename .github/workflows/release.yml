@@ -32,7 +32,7 @@ jobs:
         tar -xzvf jre.tar.gz &&
         rm -rf jre.tar.gz &&
         cp -r *jre* mbs/jre &&
-        cp ./scripts/run.sh mbs/mbs
+        cp ./scripts/run.sh mbs/mbs && chmod +x mbs/mbs
         tar -czvf mbs.tar.gz mbs
 
     - name: Upload Artifact

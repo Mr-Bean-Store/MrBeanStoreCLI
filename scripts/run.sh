@@ -1,3 +1,3 @@
 #! /usr/bin/env sh
 
-./mbs/jre/bin/java -jar ./mbs/mbs.jar
+./jre/bin/java -jar ./mbs.jar
